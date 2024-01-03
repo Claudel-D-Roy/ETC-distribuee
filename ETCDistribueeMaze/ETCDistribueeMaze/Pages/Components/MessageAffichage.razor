@@ -1,0 +1,45 @@
+﻿@inject IMazeService mazeService
+
+
+<div class="w-100 mb-2 chat-messages" >
+    @if (null != _messages)
+    {
+        foreach (var message in _messages)
+        {
+            <p class='msg'>
+                <div class='msg-meta'>
+                    <span class='who'>@message.Username</span>
+                    <span class='when'>@message.When</span>
+                </div>
+                <span class='what'>@message.Text</span>
+            </p>
+        }
+    }
+
+</div>
+
+
+@code {
+    
+    private List<Message> _messages;
+
+    protected override void OnInitialized()
+    {
+        mazeService.MessageReceived += OnMessage;
+
+        _messages = new List<Message>();
+
+     
+    }
+
+    private async void OnMessage(object sender, Message message)
+    {
+        _messages.Add(message);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void Dispose()
+    {
+        mazeService.MessageReceived -= OnMessage;
+    }
+}

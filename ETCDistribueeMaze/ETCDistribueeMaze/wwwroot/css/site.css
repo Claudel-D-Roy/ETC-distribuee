@@ -1,0 +1,245 @@
+@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import 'Why.css';
+
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    height: 100%;
+    background-color: darkgray
+}
+
+app {
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+nav.nav-main {
+    text-align: left;
+    background-color: black;
+    padding: 10px;
+    color: white;
+}
+
+    nav.nav-main h1 {
+        font-size: 1.5rem;
+    }
+
+.welcome{
+    text-align: center;
+    padding: 10px;
+    color: black;
+    margin: 10px;
+    border-radius: 10px;
+
+}
+.welcome p{
+   
+font-size: 1.5rem;
+    font-weight: bold;
+    color: black;
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px;
+}
+a,
+.btn-link {
+    color: #0366d6;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.form-signin {
+    max-width: 300px;
+    margin: auto;
+    margin-top: 50px;
+}
+
+    .form-signin h1 {
+        max-width: 350px;
+        margin-bottom: 20px;
+    }
+
+    .form-signin button {
+        display: block;
+        margin: auto;
+        margin-top: 20px;
+    }
+
+.users {
+    background-color: black;
+    color: #fff;
+    text-align: center;
+}
+
+    .users .status-online {
+        color: #00d000;
+    }
+
+    .users .status-offline {
+        color: #d00000;
+    }
+
+.maze-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.maze-row {
+    display: flex;
+}
+
+.maze-cell {
+    width: 30px;
+    height: 30px;
+}
+
+
+
+.wall {
+    background-color: black;
+}
+
+.path {
+    background-color: goldenrod;
+}
+
+
+.player-color-1 {
+    background-color: #ff0000;
+}
+
+.player-color-2 {
+    background-color: #00ff00;
+}
+
+.player-color-3 {
+    background-color: #0000ff;
+}
+
+.player-color-4 {
+    background-color: #ffff00;
+}
+
+.player-color-5 {
+    background-color: #ff00ff;
+}
+
+.player-color-6 {
+    background-color: #00ffff;
+}
+
+.player-color-7 {
+    background-color: #990000;
+}
+
+.player-color-8 {
+    background-color: #009900;
+}
+
+.player-color-9 {
+    background-color: #000099;
+}
+
+.player-color-10 {
+    background-color: #999900;
+}
+
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.maze-overlay {
+    background-color: rgba(0, 0, 0, 0.5); /* semi-transparent black */
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-over-message {
+    color: white;
+    text-align: center;
+}
+
+    .game-over-message p {
+        font-size: 24px;
+    }
+
+.valid.modified:not([type=checkbox]) {
+    outline: 1px solid #26b050;
+}
+
+.invalid {
+    outline: 1px solid red;
+}
+
+.validation-message {
+    color: red;
+}
+
+
+
+.chat-messages {
+    margin-top: 10px;
+    position: fixed;
+    text-align: left;
+    border: 5px solid black;
+    border-color: rgb(153, 153, 153);
+    overflow-y: scroll;
+    height: 80%;
+    max-width: 24%;
+}
+
+    .chat-messages p.msg {
+        margin: 0;
+    }
+
+        .chat-messages p.msg .msg-meta {
+            display: inline-block;
+            width: 100%;
+        }
+
+            .chat-messages p.msg .msg-meta .who {
+                font-weight: bold;
+            }
+
+            .chat-messages p.msg .msg-meta .when {
+                font-size: 13px;
+                font-weight: 200;
+            }
+
+        .chat-messages p.msg .what {
+            display: inline-block;
+            width: 100%;
+        }
+
+.msg-form-container {
+    position: fixed;
+    padding-bottom: 30px;
+    bottom: 0;
+    max-width: 45% !important;
+}
+
+    .msg-form-container button {
+        margin-top: 10px;
+        max-width: 10% !important;
+        height: 20px;
+        width: 100px;
+    }

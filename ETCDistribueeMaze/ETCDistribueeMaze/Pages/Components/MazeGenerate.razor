@@ -1,0 +1,95 @@
+﻿@using ETCDistribueeMaze.ViewModels;
+@inject IMazeService mazeService
+
+<div>
+    @if (IsHost())
+    {
+        <div id="host">
+            <label for="mazeHeight">Height:</label>
+            <input type="number" id="mazeHeight" @bind="mazeHeight" min="25" max="200" />
+
+            <label for="mazeWidth">Width:</label>
+            <input type="number" id="mazeWidth" @bind="mazeWidth" min="25" max="200" />
+
+            <button @onclick="GenerateMaze">Generate Maze</button>
+        </div>
+
+    }
+
+</div>
+
+@code {
+
+
+    private int mazeHeight = 25;
+    private int mazeWidth = 25;
+    private Maze _maze;
+    private ViewModels.MovePosition _newPosition = new ViewModels.MovePosition();
+    private ViewModels.MazeGrid _mazeGrid = new ViewModels.MazeGrid();
+    private IEnumerable<User> _users;
+    private List<Position> _positions;
+    private bool endGame = false;
+
+    protected override void OnInitialized()
+    {
+        _users = mazeService.GetAllUsers();
+        _positions = new List<Position>();
+    }
+
+    private async void GenerateMaze()
+    {
+        _users = mazeService.GetAllUsers();
+        if (mazeHeight > 200)
+            mazeHeight = 200;
+        if (mazeWidth > 200)
+            mazeWidth = 200;
+        if (mazeHeight < 25)
+            mazeHeight = 25;
+        if (mazeWidth < 25)
+            mazeWidth = 25;
+
+
+        _maze = new Maze(mazeWidth, mazeHeight);
+        _maze.GenerateMaze();
+        _mazeGrid.grid = _maze.GetMaze();
+        _mazeGrid.height = mazeHeight;
+        _mazeGrid.width = mazeWidth;
+        _mazeGrid.doorx = _maze.doorx;
+        _mazeGrid.doory = _maze.doory;
+        _mazeGrid.exitx = _maze.exitx;
+        _mazeGrid.exity = _maze.exity;
+        _mazeGrid.endgame = endGame;
+        foreach (var user in _users)
+        {
+
+
+            _maze.SetPlayerPosition(user.Client.Id, _maze.doorx, _maze.doory);
+            _newPosition.X = _maze.PlayerPositions[user.Client.Id].PosX;
+            _newPosition.Y = _maze.PlayerPositions[user.Client.Id].PosY;
+            
+            _mazeGrid.PlayerPositions = _maze.PlayerPositions;
+
+        }
+
+        endGame = false;
+        await mazeService.PostMazeAsync(_maze);
+        _mazeGrid = new ViewModels.MazeGrid();
+
+
+    }
+
+    private bool IsHost()
+    {
+
+        if (LoggedUser != null)
+            return LoggedUser.IsHost;
+
+        return false;
+
+    }
+
+
+
+    [Parameter]
+    public User LoggedUser { get; set; }
+}

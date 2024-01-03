@@ -1,0 +1,165 @@
+# First, add the API
+apiVersion: apps/v1
+# This will be the deployment setup
+kind: Deployment
+metadata:
+  # Name your Deployment here
+  name: etc-maze-kube
+  labels:
+    # label your deployment
+    app: EtcMaze
+spec:
+  # The number of pods/replicas to run
+  replicas: 2
+  selector:
+    matchLabels:
+    # selector to match the pod
+      app: EtcMaze
+  template:
+    metadata:
+      labels:
+      # label your pod
+        app: EtcMaze
+    spec:
+      containers:
+      # Add the container name for Kubernetes
+      - name: blazor-maze-etc
+      # Add the local image name
+        image: mazeblazor
+        # never pull the image policy
+        imagePullPolicy: Never
+        ports:
+        # port for running the container, le port sur lequel l'application du conteneur roule
+        - containerPort: 80
+        - containerPort: 443
+        # First, add the API
+---
+apiVersion: apps/v1
+# This will be the deployment setup
+kind: Deployment
+metadata:
+  # Name your Deployment here
+  name: kafka-zookeeper-kube
+  labels:
+    # label your deployment
+    app: kafka-zookeeper
+spec:
+  # The number of pods/replicas to run
+  replicas: 1
+  selector:
+    matchLabels:
+    # selector to match the pod
+      app: kafka-zookeeper
+  template:
+    metadata:
+      labels:
+      # label your pod
+        app: kafka-zookeeper
+    spec:
+      containers:
+      # Add the container name for Kubernetes
+      - name: kafka-app
+      # Add the local image name
+        image: confluentinc/cp-kafka:7.4.3
+        # never pull the image policy
+        imagePullPolicy: Always
+        ports:
+        # ports for running the container, le port sur lequel l'application du conteneur roule
+        - containerPort: 9092
+        env:
+          - name: KAFKA_BROKER_ID
+            value: "1"
+          - name: KAFKA_ZOOKEEPER_CONNECT
+            value: 'zookeeper-src:2181'
+          - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+            value: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+          - name: KAFKA_ADVERTISED_LISTENERS
+            value: PLAINTEXT://:29092,PLAINTEXT_INTERNAL://kafka-src:9092
+          - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+            value: "1"
+          - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+            value: "1"
+          - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+            value: "1"
+        # Add the container name for Kubernetes
+      - name: zookeeper-app
+      # Add the local image name
+        image: confluentinc/cp-zookeeper:7.4.3
+        env:
+        - name: ZOOKEEPER_CLIENT_PORT
+          value: "2181"
+        - name: ZOOKEEPER_TICK_TIME
+          value: "2000"
+        # never pull the image policy
+        imagePullPolicy: Always
+        ports:
+        # ports for running the container, le port sur lequel l'application du conteneur roule
+        - containerPort: 2181
+        - containerPort: 2888
+        - containerPort: 3888
+---
+# First, add the Service API
+apiVersion: v1
+# This will be the Service setup
+kind: Service
+metadata:
+  # Your service name
+  name: blazormaze-etc-src
+spec:
+  selector:
+    # selector that matches the pod
+    app: EtcMaze
+  # type of service
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    # port for exposing the service
+    port: 5001
+    # portfor exposing the pod
+    targetPort: 80
+    # port for exposing the node
+    nodePort: 31111
+---
+# First, add the Service API
+apiVersion: v1
+# This will be the Service setup
+kind: Service
+metadata:
+  # Your service name
+  name: kafka-src
+spec:
+  selector:
+    # selector that matches the pod
+    app: kafka-zookeeper
+  # type of service
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    # port for exposing the service
+    port: 9092
+    # portfor exposing the pod
+    targetPort: 9092
+    # port for exposing the node
+    nodePort: 31112
+---
+# First, add the Service API
+apiVersion: v1
+# This will be the Service setup
+kind: Service
+metadata:
+  # Your service name
+  name: zookeeper-src
+spec:
+  selector:
+    # selector that matches the pod
+    app: kafka-zookeeper
+  # type of service
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    # port for exposing the service
+    port: 2181
+    # portfor exposing the pod
+    targetPort: 2181
+    # port for exposing the node
+    nodePort: 31113

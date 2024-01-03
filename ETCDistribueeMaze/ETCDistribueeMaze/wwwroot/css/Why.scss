@@ -1,0 +1,24 @@
+﻿body {
+}
+
+// Définir une liste de couleurs pour les joueurs
+$player-colors: #ff0000, #00ff00, #0000ff, #ffff00, #ff00ff, #00ffff, #990000, #009900, #000099, #999900;
+
+// Générer des classes pour chaque couleur de joueur
+@each $color in $player-colors {
+    $index: index($player-colors, $color);
+
+    .player-color-#{$index} {
+        background-color: $color;
+    }
+}
+
+$taile-dispo: 30px, 29px, 28px, 27px, 26px, 25px, 24px, 23px, 22px, 21px, 20px, 19px, 18px, 17px, 16px, 15px, 14px, 13px, 12px, 11px, 10px;
+@each $taile in $taile-dispo {
+    $index: index($taile-dispo,$taile);
+
+    .maze-cell-#{$index} {
+        width: $taile;
+        height: $taile;
+    }
+}

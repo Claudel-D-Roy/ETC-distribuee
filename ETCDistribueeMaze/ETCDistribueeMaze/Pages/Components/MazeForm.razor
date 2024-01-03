@@ -1,0 +1,272 @@
+﻿@using ETCDistribueeMaze.ViewModels;
+@inject IMazeService mazeService
+
+
+<div class="maze-container" @onkeydown="HandleKeyDown" tabindex="0" @onkeypress="HandleValidSubmit">
+    @if (_mazeGrid.grid != null)
+    {
+        <div class="maze-overlay" style="@(IsGameOver() ? "display: flex;" : "display: none;")">
+            <div class="game-over-message">
+                <p>Congratulations! You won!</p>
+            </div>
+        </div>
+
+        <div class="overlay" style="@(IsGameOver() ? "display: block;" : "display: none;")"></div>
+
+        @for (int i = 0; i < _mazeGrid.height; i++)
+        {
+            <div class="maze-row">
+                @for (int j = 0; j < _mazeGrid.height; j++)
+                {
+                    
+                    var cell = _maze.PlayerPositions.FirstOrDefault(pos => pos.Value.PosX == i && pos.Value.PosY == j).Value;
+
+                    if (cell != null)
+                    {
+                        <div class="maze-cell-@(GetNumberForHW()) @( _mazeGrid.grid[i, j] ? "wall" : "path") player player-color-@(GetColor(cell.PlayerID))"></div>
+                     
+                    }
+                    else
+                    {
+                        <div class="maze-cell-@(GetNumberForHW()) @(_mazeGrid.grid[i, j] ? "wall" : "path")"></div>
+                    }
+                    
+               
+                }
+            </div>
+        }
+
+    }
+</div>
+
+
+
+
+@code {
+    private ViewModels.MovePosition _newPosition = new ViewModels.MovePosition();
+    private ViewModels.MazeGrid _mazeGrid = new ViewModels.MazeGrid();
+    private IEnumerable<User> _users;
+    private List<Position> _positions;
+    private bool _sending;
+    private Maze _maze;
+    private int mazeHeight = 25;
+    private int mazeWidth = 25;
+
+
+
+    private int GetColor(string playerId)
+    {
+        var user = _users.FirstOrDefault(u => u.Client.Id == playerId);
+        return user != null ? user.Index : 1;
+    }
+    private int GetNumberForHW()
+    {
+        if (mazeHeight == 25 && mazeWidth == 25)
+            return 1;
+        else if (mazeHeight == 30 && mazeWidth == 30)
+            return 2;
+        else if (mazeHeight == 40 && mazeWidth == 40)
+            return 3;
+        else if (mazeHeight == 45 && mazeWidth == 45)
+            return 4;
+        else if (mazeHeight == 50 && mazeWidth == 50)
+            return 5;
+        else if (mazeHeight == 60 && mazeWidth == 60)
+            return 6;
+        else if (mazeHeight == 70 && mazeWidth == 70)
+            return 7;
+        else if (mazeHeight == 80 && mazeWidth == 80)
+            return 8;
+        else if (mazeHeight == 90 && mazeWidth == 90)
+            return 9;
+        else if (mazeHeight == 100 && mazeWidth == 100)
+            return 10;
+        else if (mazeHeight == 110 && mazeWidth == 110)
+            return 11;
+        else if (mazeHeight == 120 && mazeWidth == 120)
+            return 12;
+        else if (mazeHeight == 130 && mazeWidth == 130)
+            return 13;
+        else if (mazeHeight == 140 && mazeWidth == 140)
+            return 14;
+        else if (mazeHeight == 150 && mazeWidth == 150)
+            return 15;
+        else if (mazeHeight == 160 && mazeWidth == 160)
+            return 16;
+        else if (mazeHeight == 170 && mazeWidth == 170)
+            return 17;
+        else if (mazeHeight == 180 && mazeWidth == 180)
+            return 18;
+        else if (mazeHeight == 190 && mazeWidth == 190)
+            return 19;
+        else if (mazeHeight == 200 && mazeWidth == 200)
+            return 20;
+        else if (mazeHeight == 200 && mazeWidth == 200)
+            return 21;
+        else
+            return 1;
+    }
+
+    private string GetUserId()
+    {
+        if (LoggedUser != null)
+            return LoggedUser.Client.Id;
+
+        return "Not logged in";
+    }
+
+
+
+    protected override void OnInitialized()
+    {
+        mazeService.MazeReceived += OnMaze;
+        _mazeGrid = new ViewModels.MazeGrid();
+
+        _users = this.mazeService.GetAllUsers();
+
+
+        mazeService.PositionReceived += OnPosition;
+        _positions = new List<Position>();
+
+        _sending = false;
+    }
+
+
+    private async Task HandleValidSubmit()
+    {
+        _users = mazeService.GetAllUsers();
+        _sending = true;
+        await mazeService.PostPositionAsync(this.LoggedUser, _newPosition.X, _newPosition.Y);
+        _newPosition = new ViewModels.MovePosition();
+
+        if (_maze.endgame)
+        {
+            await mazeService.PostMazeAsync(_maze);
+        }
+        _sending = false;
+    }
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (!_sending)
+        {
+            if (e.Key == "w" || e.Key == "s" || e.Key == "a" || e.Key == "d")
+                UpdatePosition(e.Key);
+
+        }
+    }
+    private void UpdatePosition(string arrowKey)
+    {
+        _users = mazeService.GetAllUsers();
+        if (!_maze.endgame)
+        {
+            switch (arrowKey)
+            {
+                case "a":
+                    _maze.MovePlayer(GetUserId(), GetNewX(GetUserId(), "a"), GetNewY(GetUserId(), "a"));
+                    break;
+                case "d":
+                    _maze.MovePlayer(GetUserId(), GetNewX(GetUserId(), "d"), GetNewY(GetUserId(), "d"));
+                    break;
+                case "w":
+                    _maze.MovePlayer(GetUserId(), GetNewX(GetUserId(), "w"), GetNewY(GetUserId(), "w"));
+                    break;
+                case "s":
+                    _maze.MovePlayer(GetUserId(), GetNewX(GetUserId(), "s"), GetNewY(GetUserId(), "s"));
+                    break;
+            }
+
+            _newPosition.X = _maze.PlayerPositions[GetUserId()].PosX;
+            _newPosition.Y = _maze.PlayerPositions[GetUserId()].PosY;
+            StateHasChanged();
+        }
+    }
+
+    private int GetNewX(string playerId, string arrowKey)
+    {
+        int currentX = _maze.PlayerPositions[playerId].PosX;
+
+        switch (arrowKey)
+        {
+            case "a":
+                return currentX;
+            case "d":
+                return currentX;
+            case "w":
+                return currentX - 1;
+            case "s":
+                return currentX + 1;
+            default:
+                return currentX;
+        }
+    }
+
+    private int GetNewY(string playerId, string arrowKey)
+    {
+        int currentY = _maze.PlayerPositions[playerId].PosY;
+
+        switch (arrowKey)
+        {
+            case "a":
+                return currentY - 1;
+            case "d":
+                return currentY + 1;
+            case "w":
+                return currentY;
+            case "s":
+                return currentY;
+            default:
+                return currentY;
+        }
+    }
+
+    private bool IsGameOver()
+    {
+        return _maze != null && _maze.endgame;
+
+    }
+    private async void OnPosition(object sender, Position position)
+    {
+        _positions.Add(position);
+        _maze.PlayerPositions[position.PlayerID] = position;
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnMaze(object sender, MazeGrid maze)
+    {
+        _users = mazeService.GetAllUsers();
+        _maze = new Maze(maze.width, maze.height);
+        _maze.SetMaze(maze.grid, maze.doorx, maze.doory, maze.exitx, maze.exity, maze.endgame);
+        _mazeGrid.grid = maze.grid;
+        _mazeGrid.height = maze.height;
+        _mazeGrid.width = maze.width;
+        _mazeGrid.PlayerPositions = maze.PlayerPositions;
+        _mazeGrid.doorx = maze.doorx;
+        _mazeGrid.doory = maze.doory;
+        _mazeGrid.exity = maze.exity;
+        _mazeGrid.exitx = maze.exitx;
+        _mazeGrid.endgame = maze.endgame;
+
+        if (maze.PlayerPositions != null)
+        {
+            foreach (var position in maze.PlayerPositions)
+            {
+
+                _maze.SetPlayerPosition(position.Value.PlayerID, position.Value.PosX, position.Value.PosY);
+            }
+        }
+
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+
+    private void Dispose()
+    {
+        mazeService.MazeReceived -= OnMaze;
+        mazeService.PositionReceived -= OnPosition;
+
+    }
+    [Parameter]
+    public User LoggedUser { get; set; }
+}

@@ -1,0 +1,44 @@
+﻿@page "/"
+@inject IMazeService MazeService
+
+@if(null != _loginBox?.User){
+    <div class="row">
+        <Users />
+
+        <div class="col-7 col-md-7 col-lg-7 col-xl-7">
+                <MazeGenerate LoggedUser=@_loginBox.User />
+                <MazeForm LoggedUser=@_loginBox.User />
+            </div>
+        <div class="col-3 col-md-3 col-lg-3 col-xl-3">
+                <MessageAffichage />
+                <MessageForm LoggedUser=@_loginBox.User />
+
+            </div>
+        
+    </div>
+}else{
+    <Login @ref="_loginBox" />    
+}
+
+@code{
+    private Login _loginBox;
+    private ViewModels.MovePosition _position = new ViewModels.MovePosition();
+    private ViewModels.PostMessage _message = new ViewModels.PostMessage();
+
+    protected override void OnInitialized()
+    {
+        if (null != this.MazeService)
+            this.MazeService.UserLoggedIn += OnUserLoggedIn;
+    }
+
+    private async void OnUserLoggedIn(object sender, UserLoginEventArgs args)
+    {
+        await InvokeAsync(this.StateHasChanged);
+    }
+
+    private void Dispose()
+    {
+        if (null != this.MazeService)
+            this.MazeService.UserLoggedIn -= OnUserLoggedIn;
+    }
+}

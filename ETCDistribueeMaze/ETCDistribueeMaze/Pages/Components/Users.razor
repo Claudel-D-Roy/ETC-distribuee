@@ -1,0 +1,68 @@
+﻿@inject IMazeService MazeService
+
+<div class="col-2 col-md-2 col-lg-2 col-xl-2 users">
+    <h3>Online users</h3>
+    <div class='users-list'>
+        @if (null != _users && _users.Any())
+        {
+            var host = _users.FirstOrDefault(u => u.IsHost);
+            if (host == null && _users.Count() > 0)
+            {
+                host = _users.First();
+                host.SetHostStatus(true);
+            }
+            foreach (var user in _users)
+            {
+                <p>
+                    @if (user.IsHost)
+                    {
+                        <span class='status-@(user.IsHost ? "host" : (user.Client != null ? "online" : "offline"))'>
+                            <i class="fa fa-user"> @user.Username - host</i>
+                        </span>
+                    }
+                    else
+                    {
+                        <span class='status-@(user.IsHost ? "host" : (user.Client != null ? "online" : "offline"))'>
+                            <i class="fa fa-user"> @user.Username</i>
+                        </span>
+                    }
+                </p>
+            }
+        }
+    </div>
+</div>
+
+
+@code {
+    private IEnumerable<User> _users;
+    protected override void OnInitialized()
+    {
+        MazeService.UserLoggedIn += OnUserLoggedIn;
+        MazeService.UserLoggedOut += OnUserLoggedOut;
+        _users = this.MazeService.GetAllUsers();
+    }
+
+    private async void OnUserLoggedIn(object sender, UserLoginEventArgs args)
+    {
+        _users = this.MazeService.GetAllUsers();
+        int index = 1;
+        foreach (var user in _users)
+        {
+            user.Index = index;
+            index++;
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async void OnUserLoggedOut(object sender, UserLogoutEventArgs args)
+    {
+        _users = this.MazeService.GetAllUsers();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private void Dispose()
+    {
+        MazeService.UserLoggedIn -= OnUserLoggedIn;
+        MazeService.UserLoggedOut -= OnUserLoggedOut;
+    }
+}
