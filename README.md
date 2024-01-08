@@ -1,6 +1,6 @@
 # Final Course Project - Distributed
 
-Project completed during the fifth session of my computer science program.
+Project completed during the fifth session of my software development program.
 
 This is the end-of-session project, a Blazor application.
 
